@@ -1,173 +1,217 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/material.dart';
+import 'game_over.dart';
 
 class GameScreen extends StatefulWidget {
-  final String userName;
+  final String username;
 
-  GameScreen({required this.userName});
+  const GameScreen({Key? key, required this.username}) : super(key: key);
 
   @override
   _GameScreenState createState() => _GameScreenState();
 }
 
 class _GameScreenState extends State<GameScreen> {
-  int score = 0; // Pontuação do jogador
-  int timeLeft = 30; // Tempo restante em segundos
-  int phase = 1; // Fase do jogo
-  int mistakes = 0; // Contador de erros
-  late Timer _timer; // Timer para contagem regressiva
-  List<int> highlightedSquares = []; // Índices dos quadrados destacados
-  List<int> selectedSquares = []; // Índices selecionados pelo usuário
+  static const int gridSize = 8;
+  static const int numberOfSquares = 3;
+  static const int timePerLevel = 30; // 30 segundos por fase.
+
+  List<int> highlightedSquares = [];
+  List<int> selectedSquares = [];
+  int score = 0;
+  int phase = 1;
+  int timeLeft = timePerLevel;
+  int errors = 0;
+  Timer? timer;
+  bool isRevealing = true; // Controle para mostrar os quadrados no início.
 
   @override
   void initState() {
     super.initState();
-    startTimer();
-    highlightRandomSquares();
+    startGame();
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    timer?.cancel();
     super.dispose();
   }
 
+  void startGame() {
+    setState(() {
+      score = 0;
+      phase = 1;
+      errors = 0;
+      timeLeft = timePerLevel;
+      startNewLevel();
+    });
+  }
+
+  void startNewLevel() {
+    timer?.cancel(); // Para o tempo da fase anterior.
+    setState(() {
+      timeLeft = timePerLevel;
+      selectedSquares.clear();
+      highlightedSquares = _generateRandomSquares();
+      isRevealing = true;
+    });
+
+    // Mostra os quadrados por 2 segundos antes de escondê-los.
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        isRevealing = false;
+      });
+      startTimer();
+    });
+  }
+
   void startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (timeLeft > 0) {
           timeLeft--;
         } else {
           timer.cancel();
-          navigateToGameOver();
+          showGameOver();
         }
       });
     });
   }
 
-  void highlightRandomSquares() {
-    // Sorteia 3 índices aleatórios no grid (sem repetir)
-    Random random = Random();
-    Set<int> uniqueIndexes = {};
-    while (uniqueIndexes.length < 3) {
-      uniqueIndexes.add(random.nextInt(64));
-    }
-    highlightedSquares = uniqueIndexes.toList();
-
-    // Destaca os quadrados por 2 segundos e depois "esconde"
-    Future.delayed(Duration(seconds: 2), () {
+  void checkSquare(int index) {
+    if (highlightedSquares.contains(index)) {
       setState(() {
-        highlightedSquares = []; // Esconde os destaques
-      });
-    });
-  }
-
-  void handleSquareTap(int index) {
-    if (selectedSquares.contains(index))
-      return; // Evita cliques repetidos no mesmo quadrado
-
-    setState(() {
-      if (highlightedSquares.contains(index)) {
-        // Acerto
         selectedSquares.add(index);
         score += 3;
-      } else {
-        // Erro
-        mistakes++;
-        if (mistakes == 2) {
-          navigateToGameOver();
-        }
-      }
+      });
 
-      // Avança de fase se todos os 3 quadrados forem acertados
-      if (selectedSquares.length == 3) {
-        nextPhase();
+      // Verifica se o jogador acertou todos os quadrados.
+      if (selectedSquares.toSet().containsAll(highlightedSquares)) {
+        timer?.cancel();
+        Future.delayed(const Duration(seconds: 1), () {
+          setState(() {
+            phase++;
+            startNewLevel();
+          });
+        });
       }
-    });
+    } else {
+      setState(() {
+        errors++;
+      });
+
+      // Marca o quadrado como vermelho.
+      Future.delayed(const Duration(milliseconds: 500), () {
+        setState(() {
+          selectedSquares.add(index);
+        });
+      });
+
+      if (errors >= 2) {
+        timer?.cancel();
+        Future.delayed(const Duration(milliseconds: 500), showGameOver);
+      }
+    }
   }
 
-  void nextPhase() {
-    setState(() {
-      phase++;
-      selectedSquares.clear();
-      mistakes = 0; // Reinicia os erros
-      timeLeft = 30; // Reinicia o timer
-      highlightRandomSquares();
-    });
+  void showGameOver() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => GameOverScreen(
+          score: score,
+          onRetry: () {
+            Navigator.pop(context); // Fecha GameOverScreen
+            startGame(); // Reinicia o jogo
+          },
+          onReturn: () {
+            Navigator.pop(context); // Fecha GameOverScreen
+            Navigator.pop(context); // Retorna à tela inicial
+          },
+        ),
+      ),
+    );
   }
 
-  void navigateToGameOver() {
-    Navigator.pushNamed(context, '/gameover', arguments: score);
+  List<int> _generateRandomSquares() {
+    Random random = Random();
+    List<int> squares = [];
+    while (squares.length < numberOfSquares) {
+      int square = random.nextInt(gridSize * gridSize);
+      if (!squares.contains(square)) {
+        squares.add(square);
+      }
+    }
+    return squares;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Jogo de Memória'),
-        centerTitle: true,
+        title: Text('Memory Game'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Column(
         children: [
-          // Nome do Usuário, Score, Time Left e Fase
+          // Header com Username, Score e Tempo.
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('${widget.userName} | Score: $score'),
-                    Text('Time Left: $timeLeft s'),
-                  ],
+                Text(
+                  'Usuário: ${widget.username}\nScore: $score',
+                  style: const TextStyle(fontSize: 16),
                 ),
-                const SizedBox(height: 8),
-                Text('Fase: $phase'),
+                Text(
+                  'Time Left: ${timeLeft}s',
+                  style: const TextStyle(fontSize: 16),
+                ),
               ],
             ),
           ),
-          // Grid de quadrados
+          Text(
+            'Fase $phase',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          // Grid de quadrados.
           Expanded(
             child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 8,
-                crossAxisSpacing: 4,
-                mainAxisSpacing: 4,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: gridSize,
+                crossAxisSpacing: 4.0,
+                mainAxisSpacing: 4.0,
               ),
-              itemCount: 64,
+              itemCount: gridSize * gridSize,
               itemBuilder: (context, index) {
                 bool isHighlighted = highlightedSquares.contains(index);
                 bool isSelected = selectedSquares.contains(index);
 
-                return InkWell(
-                  onTap: () {
-                    handleSquareTap(index);
-                    debugPrint('Quadrado $index clicado'); // Log para depuração
-                  },
-                  child: Container(
+                return GestureDetector(
+                  onTap: !isRevealing && !isSelected
+                      ? () => checkSquare(index)
+                      : null,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? Colors.green
-                          : isHighlighted
-                              ? Colors.yellow
-                              : Colors.blue,
-                      border: Border.all(color: Colors.black),
+                      color: isRevealing
+                          ? (isHighlighted ? Colors.yellow : Colors.blue)
+                          : (isSelected
+                              ? (highlightedSquares.contains(index)
+                                  ? Colors.green
+                                  : Colors.red)
+                              : Colors.blue),
+                      borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
                 );
               },
-            ),
-          ),
-          // Botão para retornar à tela inicial
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Voltar à Tela Inicial'),
             ),
           ),
         ],
