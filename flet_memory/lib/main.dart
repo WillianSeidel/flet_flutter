@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const HomeScreen(),
         '/game': (context) => GameScreen(
-              userName: '',
+              username: '',
             ),
         //'/ranking': (context) => RankingScreen(),
         //'/store': (context) => StoreScreen(),
