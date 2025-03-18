@@ -5,8 +5,10 @@ import 'game_over.dart';
 
 class GameScreen extends StatefulWidget {
   final String username;
+  final String userId; // Adicionamos o userId para salvar a pontuação
 
-  const GameScreen({Key? key, required this.username}) : super(key: key);
+  const GameScreen({Key? key, required this.username, required this.userId})
+      : super(key: key);
 
   @override
   _GameScreenState createState() => _GameScreenState();
@@ -129,6 +131,7 @@ class _GameScreenState extends State<GameScreen> {
             Navigator.pop(context); // Fecha GameOverScreen
             Navigator.pop(context); // Retorna à tela inicial
           },
+          userId: widget.userId, // Passa o userId para salvar a pontuação
         ),
       ),
     );

@@ -16,6 +16,14 @@ class HomeScreen extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () {
+                Navigator.pushNamed(
+                    context, '/login'); // Navega para a tela de login
+              },
+              child: const Text('Login'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
                 Navigator.pushNamed(context, '/game');
               },
               child: const Text('Start'),

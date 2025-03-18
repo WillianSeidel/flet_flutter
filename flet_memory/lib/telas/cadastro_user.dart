@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-//import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChooseNicknameScreen extends StatelessWidget {
   final String userId;
@@ -21,9 +21,10 @@ class ChooseNicknameScreen extends StatelessWidget {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-             // FirebaseFirestore.instance.collection('users').doc(userId).set({
+              FirebaseFirestore.instance.collection('users').doc(userId).set({
                 'nickname': nicknameController.text,
-                'avatarUrl': 'https://link-do-avatar.com/avatar1.png', // Avatar fixo ou escolha do usuário
+                'avatarUrl':
+                    'https://link-do-avatar.com/avatar1.png', // Avatar fixo ou escolha do usuário
                 'score': 0,
               });
               Navigator.pop(context); // Retorna à tela inicial

@@ -1,19 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GameOverScreen extends StatelessWidget {
   final int score;
   final VoidCallback onRetry;
   final VoidCallback onReturn;
+  final String userId;
 
   const GameOverScreen({
     Key? key,
     required this.score,
     required this.onRetry,
     required this.onReturn,
+    required this.userId,
   }) : super(key: key);
+
+  void _saveScore() async {
+    await FirebaseFirestore.instance.collection('users').doc(userId).update({
+      'score': FieldValue.increment(score),
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    _saveScore(); // Salva a pontuação quando a tela é exibida
+
     return Scaffold(
       body: Center(
         child: Padding(
