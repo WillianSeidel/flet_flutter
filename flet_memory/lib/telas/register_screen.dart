@@ -11,7 +11,7 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Cadastro')),
+      appBar: AppBar(title: const Text('Cadastro')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -19,15 +19,15 @@ class RegisterScreen extends StatelessWidget {
           children: [
             TextField(
               controller: emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(labelText: 'Email'),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: passwordController,
-              decoration: InputDecoration(labelText: 'Senha'),
+              decoration: const InputDecoration(labelText: 'Senha'),
               obscureText: true,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 User? user = await _auth.register(
@@ -44,11 +44,11 @@ class RegisterScreen extends StatelessWidget {
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Cadastro falhou!')),
+                    const SnackBar(content: Text('Cadastro falhou!')),
                   );
                 }
               },
-              child: Text('Cadastrar'),
+              child: const Text('Cadastrar'),
             ),
           ],
         ),

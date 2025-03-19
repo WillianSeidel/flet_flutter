@@ -12,7 +12,7 @@ class AuthService {
       );
       return result.user;
     } catch (e) {
-      print("Erro no login: $e");
+      //print("Erro no login: $e");
       return null;
     }
   }
@@ -26,7 +26,7 @@ class AuthService {
       );
       return result.user;
     } catch (e) {
-      print("Erro no cadastro: $e");
+      //print("Erro no cadastro: $e");
       return null;
     }
   }

@@ -1,0 +1,2 @@
+F:/flet/flet_flutter/flet_memory/android/app/.cxx/Debug/2k2z52x6/x86/CMakeFiles/edit_cache.dir
+F:/flet/flet_flutter/flet_memory/android/app/.cxx/Debug/2k2z52x6/x86/CMakeFiles/rebuild_cache.dir

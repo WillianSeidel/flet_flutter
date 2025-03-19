@@ -11,12 +11,12 @@ class ChooseNicknameScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Escolha seu Nickname')),
+      appBar: AppBar(title: const Text('Escolha seu Nickname')),
       body: Column(
         children: [
           TextField(
             controller: nicknameController,
-            decoration: InputDecoration(labelText: 'Nickname'),
+            decoration: const InputDecoration(labelText: 'Nickname'),
           ),
           const SizedBox(height: 20),
           ElevatedButton(
@@ -29,7 +29,7 @@ class ChooseNicknameScreen extends StatelessWidget {
               });
               Navigator.pop(context); // Retorna à tela inicial
             },
-            child: Text('Salvar'),
+            child: const Text('Salvar'),
           ),
         ],
       ),

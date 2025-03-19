@@ -39,18 +39,18 @@ class GameOverScreen extends StatelessWidget {
               SizedBox(height: 16),
               Text(
                 'Seu score foi de $score pontos.',
-                style: TextStyle(fontSize: 20),
+                style: const TextStyle(fontSize: 20),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: onRetry,
-                child: Text('Jogar Novamente'),
+                child: const Text('Jogar Novamente'),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: onReturn,
-                child: Text('Retornar para a Tela Inicial'),
+                child: const Text('Retornar para a Tela Inicial'),
               ),
             ],
           ),
